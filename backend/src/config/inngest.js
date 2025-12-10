@@ -14,14 +14,18 @@ const syncUser = inngest.createFunction(
       (e) => e.id === user.primary_email_address_id
     ).email_address;
     await connectDB();
-    await User.create({
-      clerkId: id,
-      name: `${first_name || ""} ${last_name || ""}` || "User",
-      email: email,
-      image: image_url,
-      addresses: [],
-      wishlist: [],
-    });
+    await User.create(
+      {
+        role: "user",
+        clerkId: id,
+        name: `${first_name || ""} ${last_name || ""}` || "User",
+        email: email,
+        imageUrl: image_url,
+        addresses: [],
+        wishlist: [],
+      },
+      { upsert: true, new: true }
+    );
   }
 );
 const deleteUser = inngest.createFunction(

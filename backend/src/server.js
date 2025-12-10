@@ -5,12 +5,13 @@ import { clerkMiddleware } from "@clerk/express";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { functions, inngest } from "./config/inngest.js";
 import { serve } from "inngest/express";
+import adminRouter from "./routes/admin.route.js";
 const app = express();
 
 app.use(express.json());
 app.use(clerkMiddleware());
-app.get("/api", (req, res) => res.status(200).json({ message: "Hello World" }));
 app.use("/api/inngest", serve({ client: inngest, functions }));
+app.use("/api/admin", adminRouter);
 app.use(errorHandler);
 const startServer = async () => {
   try {
