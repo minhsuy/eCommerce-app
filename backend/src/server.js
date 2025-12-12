@@ -1,4 +1,5 @@
 import express from "express";
+import cors from "cors";
 import { ENV } from "./config/env.js";
 import { connectDB } from "./config/connectDB.js";
 import { clerkMiddleware } from "@clerk/express";
@@ -10,6 +11,12 @@ const app = express();
 
 app.use(express.json());
 app.use(clerkMiddleware());
+app.use(
+  cors({
+    origin: ENV.CLIENT_URL,
+    credentials: true,
+  })
+);
 app.get("/", (_, res) =>
   res.status(200).json({ message: "Hi . This is E-commerce API" })
 );

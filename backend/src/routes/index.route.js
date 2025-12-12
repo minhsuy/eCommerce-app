@@ -1,4 +1,5 @@
 import adminRouter from "./admin.route.js";
+import cartRouter from "./cart.route.js";
 import orderRouter from "./order.route.js";
 import productRouter from "./product.route.js";
 import reviewRouter from "./review.route.js";
@@ -10,4 +11,5 @@ export const initRoute = (app) => {
   app.use("/api/orders", orderRouter);
   app.use("/api/products", productRouter);
   app.use("/api/reviews", reviewRouter);
+  app.use("/api/carts", cartRouter);
 };
