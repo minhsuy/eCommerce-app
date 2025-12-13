@@ -26,15 +26,17 @@ app.use(errorHandler);
 const startServer = async () => {
   try {
     await connectDB();
-    if (ENV.NODE_ENV !== "development") {
-      app.listen(ENV.PORT, () => {
-        console.log(`Server is running on port ${ENV.PORT}`);
-      });
-      return;
-    }
+
+    const PORT = Number(process.env.PORT) || Number(ENV.PORT) || 3000;
+
+    app.listen(PORT, "0.0.0.0", () => {
+      console.log(`Server is running on port ${PORT}`);
+      console.log("NODE_ENV:", ENV.NODE_ENV);
+    });
   } catch (error) {
     console.log(error);
     process.exit(1);
   }
 };
+
 startServer();
