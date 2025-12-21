@@ -62,10 +62,12 @@ export const updateProduct = asyncHnandler(async (req, res) => {
 // delete a product
 export const deleteProduct = asyncHnandler(async (req, res) => {
   const { id } = req.params;
-  const product = await Product.findByIdAndDelete(id);
+
+  const product = await Product.findById(id);
   if (!product) {
     return res.status(404).json({ message: "Product not found" });
   }
+  await Product.findByIdAndDelete(id);
   res.status(200).json({ message: "Product deleted successfully" });
 });
 
@@ -119,7 +121,7 @@ export async function getDashboardStats(req, res) {
   const totalOrders = await Order.countDocuments();
 
   const revenueResult = await Order.aggregate([
-    // { $match: { status: "delivered" } },
+    { $match: { status: "delivered" } },
     {
       $group: {
         _id: null,
@@ -140,3 +142,15 @@ export async function getDashboardStats(req, res) {
     totalProducts,
   });
 }
+
+export const updateRoleUser = asyncHnandler(async (req, res) => {
+  const { role } = req.body;
+  const { userId } = req.params;
+  const user = await User.findById(userId);
+  if (!user) {
+    return res.status(404).json({ message: "User not found" });
+  }
+  user.role = role;
+  await user.save();
+  res.status(200).json({ message: "User role updated successfully", user });
+});

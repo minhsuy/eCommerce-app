@@ -7,28 +7,41 @@ import OrdersPage from "./pages/OrdersPage";
 import ProductPage from "./pages/ProductPage";
 import CustomersPage from "./pages/CustomersPage";
 import PageLoader from "./components/PageLoader";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const App = () => {
   const { isLoaded, isSignedIn } = useAuth();
   if (!isLoaded) return <PageLoader />;
   return (
-    <Routes>
-      <Route
-        path="/login"
-        element={isSignedIn ? <Navigate to="/" /> : <LoginPage />}
+    <>
+      <ToastContainer
+        position="top-center"
+        autoClose={2500}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        pauseOnHover
+        theme="light"
       />
-      <Route
-        path="/"
-        element={
-          isSignedIn ? <DashboardLayout></DashboardLayout> : <LoginPage />
-        }
-      >
-        <Route index element={<Navigate to="/dashboard" />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
-        <Route path="/orders" element={<OrdersPage />} />
-        <Route path="/products" element={<ProductPage />} />
-        <Route path="/customers" element={<CustomersPage />} />
-      </Route>
-    </Routes>
+      <Routes>
+        <Route
+          path="/login"
+          element={isSignedIn ? <Navigate to="/" /> : <LoginPage />}
+        />
+        <Route
+          path="/"
+          element={
+            isSignedIn ? <DashboardLayout></DashboardLayout> : <LoginPage />
+          }
+        >
+          <Route index element={<Navigate to="/dashboard" />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/products" element={<ProductPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
+        </Route>
+      </Routes>
+    </>
   );
 };
 

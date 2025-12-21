@@ -8,6 +8,7 @@ import {
   getDashboardStats,
   updateOrderStatus,
   updateProduct,
+  updateRoleUser,
 } from "../controllers/admin.controller.js";
 import { isAdmin, protectedRoute } from "../middleware/auth.middleware.js";
 import { upload } from "../middleware/multer.middleware.js";
@@ -24,6 +25,7 @@ adminRouter.get("/orders", getAllOrders);
 adminRouter.patch("/orders/:orderId/status", updateOrderStatus);
 
 adminRouter.get("/customers", getAllCustomers);
+adminRouter.patch("/customers/:userId", updateRoleUser);
 
 adminRouter.get("/stats", getDashboardStats);
 export default adminRouter;

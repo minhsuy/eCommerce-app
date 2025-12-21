@@ -5,6 +5,7 @@ import {
   addToWishlist,
   deleteAddress,
   getAddresses,
+  getUserInfo,
   getWishlist,
   removeFromWishlist,
   updateAddress,
@@ -24,4 +25,5 @@ userRouter.delete("/addresses/:addressId", deleteAddress);
 userRouter.post("/wishlist", addToWishlist);
 userRouter.delete("/wishlist/:productId", removeFromWishlist);
 userRouter.get("/wishlist", getWishlist);
+userRouter.get("/me", getUserInfo);
 export default userRouter;
