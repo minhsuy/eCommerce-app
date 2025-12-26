@@ -31,27 +31,16 @@ app.post("/chat", async (req, res) => {
     if (!message || typeof message !== "string") {
       return res.status(400).json({ error: "message is required (string)" });
     }
-
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: [{ role: "user", parts: [{ text: message }] }],
+      contents: message,
     });
-
     res.json({ text: response.text ?? "" });
   } catch (err) {
-    const msg = err?.message ?? String(err);
-
-    // Gemini hay nhét json string trong message như bạn thấy
-    if (msg.includes('"code":429') || msg.includes("RESOURCE_EXHAUSTED")) {
-      return res.status(429).json({
-        error: "rate_limited",
-        message:
-          "Gemini quota/rate limit exceeded. Reduce requests or enable billing/increase quota.",
-      });
-    }
-
     console.error(err);
-    res.status(500).json({ error: "gemini_error", message: msg });
+    res
+      .status(500)
+      .json({ error: "gemini_error", message: err?.message ?? String(err) });
   }
 });
 
