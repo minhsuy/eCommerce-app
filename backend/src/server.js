@@ -7,19 +7,44 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { functions, inngest } from "./config/inngest.js";
 import { serve } from "inngest/express";
 import { initRoute } from "./routes/index.route.js";
-const app = express();
+import { GoogleGenAI } from "@google/genai";
 
+const app = express();
+const ai = new GoogleGenAI({
+  apiKey: ENV.GEMINI_API_KEY,
+});
 app.use(express.json());
 app.use(clerkMiddleware());
 app.use(
   cors({
-    origin: ENV.CLIENT_URL,
+    origin: "*",
     credentials: true,
   })
 );
 app.get("/", (_, res) =>
   res.status(200).json({ message: "Hi . This is E-commerce API" })
 );
+app.post("/chat", async (req, res) => {
+  try {
+    const { message } = req.body;
+    if (!message || typeof message !== "string") {
+      return res.status(400).json({ error: "message is required (string)" });
+    }
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: message,
+    });
+
+    res.json({ text: response.text ?? "" });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({
+      error: "gemini_error",
+      message: err?.message ?? String(err),
+    });
+  }
+});
 app.use("/api/inngest", serve({ client: inngest, functions }));
 initRoute(app);
 app.use(errorHandler);
