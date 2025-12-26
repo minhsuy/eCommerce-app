@@ -10,12 +10,7 @@ import { initRoute } from "./routes/index.route.js";
 import { GoogleGenAI } from "@google/genai";
 
 const app = express();
-const chatLimiter = rateLimit({
-  windowMs: 60_000,
-  max: 10, // 10 req / phút / IP
-  standardHeaders: true,
-  legacyHeaders: false,
-});
+
 const ai = new GoogleGenAI({
   apiKey: ENV.GEMINI_API_KEY,
 });
@@ -30,7 +25,7 @@ app.use(
 app.get("/", (_, res) =>
   res.status(200).json({ message: "Hi . This is E-commerce API" })
 );
-app.post("/chat", chatLimiter, async (req, res) => {
+app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
     if (!message || typeof message !== "string") {
