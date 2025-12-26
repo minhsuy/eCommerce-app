@@ -4,16 +4,13 @@ import { ENV } from "./config/env.js";
 import { connectDB } from "./config/connectDB.js";
 import { clerkMiddleware } from "@clerk/express";
 import { errorHandler } from "./middleware/errorHandler.js";
+import Groq from "groq-sdk";
 import { functions, inngest } from "./config/inngest.js";
 import { serve } from "inngest/express";
 import { initRoute } from "./routes/index.route.js";
-import { GoogleGenAI } from "@google/genai";
 
 const app = express();
 
-const ai = new GoogleGenAI({
-  apiKey: ENV.GEMINI_API_KEY,
-});
 app.use(express.json());
 app.use(clerkMiddleware());
 app.use(
@@ -25,22 +22,31 @@ app.use(
 app.get("/", (_, res) =>
   res.status(200).json({ message: "Hi . This is E-commerce API" })
 );
+const groq = new Groq({ apiKey: ENV.GROQ_API_KEY });
+const model = ENV.GROQ_MODEL || "llama-3.3-70b-versatile";
 app.post("/chat", async (req, res) => {
   try {
-    const { message } = req.body;
+    const { message } = req.body || {};
     if (!message || typeof message !== "string") {
-      return res.status(400).json({ error: "message is required (string)" });
+      return res
+        .status(400)
+        .json({ error: "Body must contain { message: string }" });
     }
-    const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
-      contents: message,
+
+    const completion = await groq.chat.completions.create({
+      model,
+      messages: [{ role: "user", content: message }],
+      temperature: 0.7,
     });
-    res.json({ text: response.text ?? "" });
+
+    const text = completion?.choices?.[0]?.message?.content ?? "";
+    return res.json({ model, text });
   } catch (err) {
-    console.error(err);
-    res
-      .status(500)
-      .json({ error: "gemini_error", message: err?.message ?? String(err) });
+    const status = err?.status || err?.code;
+    return res.status(status === 429 ? 429 : 500).json({
+      error: "GROQ_REQUEST_FAILED",
+      message: err?.message || String(err),
+    });
   }
 });
 
