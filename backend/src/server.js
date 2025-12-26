@@ -33,18 +33,27 @@ app.post("/chat", async (req, res) => {
 
     const response = await ai.models.generateContent({
       model: "gemini-2.5-flash",
-      contents: message,
+      contents: [{ role: "user", parts: [{ text: message }] }],
     });
 
     res.json({ text: response.text ?? "" });
   } catch (err) {
+    const msg = err?.message ?? String(err);
+
+    // Gemini hay nhét json string trong message như bạn thấy
+    if (msg.includes('"code":429') || msg.includes("RESOURCE_EXHAUSTED")) {
+      return res.status(429).json({
+        error: "rate_limited",
+        message:
+          "Gemini quota/rate limit exceeded. Reduce requests or enable billing/increase quota.",
+      });
+    }
+
     console.error(err);
-    res.status(500).json({
-      error: "gemini_error",
-      message: err?.message ?? String(err),
-    });
+    res.status(500).json({ error: "gemini_error", message: msg });
   }
 });
+
 app.use("/api/inngest", serve({ client: inngest, functions }));
 initRoute(app);
 app.use(errorHandler);
